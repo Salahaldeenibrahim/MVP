@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<title>ONshore: Domestic content sourcing tool</title>
+<style>
+:root{--bg:#e6f3fd;--panel:#fff;--ink:#0f2a40;--mute:#52728c;--line:#c6dff2;--acc:#1b78c2;--acc2:#d6eafa;--warn:#b5381c;--ok:#1b78c2;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1c29;--panel:#152636;--ink:#e6f2fb;--mute:#8fadc4;--line:#27415a;--acc:#7cc4f5;--acc2:#1d3a52;--warn:#ff9a7a;--ok:#7cc4f5}}
+:root[data-theme="dark"]{--bg:#0e1c29;--panel:#152636;--ink:#e6f2fb;--mute:#8fadc4;--line:#27415a;--acc:#7cc4f5;--acc2:#1d3a52;--warn:#ff9a7a;--ok:#7cc4f5}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "IBM Plex Sans",system-ui,sans-serif}
+main{max-width:1080px;margin:0 auto;padding:24px 16px 56px}
+h1{font:400 48px/1.2 "Pacifico","Brush Script MT",cursive;margin:0 0 6px;letter-spacing:-.01em}
+h2{font-size:17px;margin:0 0 10px}
+p.sub{color:var(--mute);margin:0 0 20px;max-width:64ch}
+section{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px;margin-bottom:16px}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:end}
+label{font-size:13px;color:var(--mute);display:block;margin-bottom:3px}
+input[type=number],input[type=text],textarea{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:6px 8px;font:inherit;width:100%}
+input:focus-visible,button:focus-visible,textarea:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+button{background:var(--acc);color:#fff;border:0;border-radius:4px;padding:8px 14px;font:inherit;font-weight:600;cursor:pointer}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) button:not(.ghost){color:#0e1c29}}
+:root[data-theme="dark"] button:not(.ghost){color:#0e1c29}
+button.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:760px}
+th,td{padding:5px 6px;border-bottom:1px solid var(--line);text-align:left;font-size:14px;vertical-align:middle}
+th{font-weight:600;color:var(--mute);font-size:13px}
+td input[type=text],td input[type=number]{padding:4px 6px}
+td.n{text-align:right;font-variant-numeric:tabular-nums}
+.big{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:14px}
+.stat{border:1px solid var(--line);border-radius:6px;padding:10px 12px}
+.stat b{display:block;font-size:24px;font-variant-numeric:tabular-nums}
+.stat span{font-size:13px;color:var(--mute)}
+.bar{height:14px;background:var(--bg);border:1px solid var(--line);border-radius:3px;position:relative;margin:6px 0 4px}
+.bar i{display:block;height:100%;background:var(--acc)}
+.bar u{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--warn)}
+.msg{padding:10px 12px;border-radius:4px;background:var(--acc2);margin-bottom:12px}
+.msg.bad{color:var(--warn);border:1px solid var(--warn);background:transparent}
+.tag{font-size:12px;padding:1px 6px;border-radius:3px;background:var(--acc2);color:var(--ok)}
+.muted{color:var(--mute)}
+small{color:var(--mute)}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);font-weight:600;margin-bottom:4px}
+h1{color:var(--acc)}
+.stat.key{background:var(--acc);border-color:var(--acc)}
+.stat.key b,.stat.key span{color:var(--bg)}
+.rank{display:inline-block;width:24px;height:24px;line-height:24px;text-align:center;border-radius:50%;background:var(--acc);color:var(--bg);font-size:12px;font-weight:600}
+tr.tot td{font-weight:600;border-top:2px solid var(--acc);border-bottom:0}
+tbody tr:hover td{background:var(--acc2)}
+section{box-shadow:0 1px 2px rgba(20,60,100,.06)}
+select{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:6px 8px;font:inherit;width:100%}
+select:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+</style>
+</head>
+<body>
+<main>
+<div class="eyebrow">Domestic content sourcing tool</div>
+<h1>ONshore</h1>
+<p class="sub">Built for teams that need to raise U.S. content without overspending. Enter your bill of materials and the tool finds the foreign parts that raise domestic content the most for the least added cost, and stops once you hit your target. Sample data is loaded so you can try it now!</p>
+
+<section>
+<h2>1. Set your target</h2>
+<div class="row">
+<div style="width:170px"><label for="tgt">Domestic content target (%)</label><input id="tgt" type="number" value="65" min="1" max="100"></div>
+<div style="width:230px"><label for="mode">Optimize for</label><select id="mode"><option value="cheap">Lowest added cost</option><option value="max">Most domestic content</option></select></div>
+<div><button id="addRow">Add part</button></div>
+<div><button class="ghost" id="loadSample">Reset to sample</button></div>
+<div><button class="ghost" id="toggleCsv">Paste CSV</button></div>
+</div>
+<div id="csvBox" hidden style="margin-top:12px">
+<label for="csv">Columns: part, qty, unit_cost, origin (U.S. alternative prices are estimated for you)</label>
+<textarea id="csv" rows="5"></textarea>
+<div style="margin-top:8px"><button id="importCsv">Load CSV</button> <input type="file" id="file" accept=".csv,text/csv" style="width:auto"></div>
+</div>
+</section>
+
+<section>
+<h2>2. Review your bill of materials</h2>
+<div class="scroll"><table>
+<thead><tr><th>Part</th><th style="width:60px">Qty</th><th style="width:100px">Unit cost ($)</th><th style="width:120px">Origin</th><th style="width:150px">Est. U.S. cost ($)</th><th style="width:70px">Keep as is</th><th style="width:36px"></th></tr></thead>
+<tbody id="rows"></tbody>
+</table></div>
+<small>U.S. prices are hardcoded by country using assumed rates (China +40%, Japan +30%, Germany +20%). "Keep as is" locks parts where a swap would hurt performance, so the tool will not replace them.</small>
+</section>
+
+<section id="out"></section>
+</main>
+<script>
+var SAMPLE=[
+["Joint actuator module",12,410,"Japan",620],
+["Harmonic reducer",12,185,"Japan",260],
+["BLDC motor (wheel)",4,95,"China",140],
+["Battery cells (pack)",1,820,"China",1150],
+["Motor driver board",16,48,"China",71],
+["Main compute module",1,1250,"US",""],
+["Lidar sensor",1,690,"China",880],
+["Depth camera",2,210,"US",""],
+["IMU",2,38,"Japan",55],
+["Torque sensor",12,64,"China",""],
+["Main PCB assembly",1,310,"China",420],
+["Wiring harness",1,145,"China",190],
+["Aluminum frame",1,520,"US",""],
+["Fasteners and bearings",1,92,"China",118],
+["Gripper assembly",2,260,"Germany",330],
+["Cooling fans",4,14,"China",23]
+];
+var D=[];
+var $=function(i){return document.getElementById(i)};
+var PREM={china:.40,taiwan:.30,japan:.30,"south korea":.30,korea:.30,germany:.20,mexico:.15,canada:.10,vietnam:.35,india:.35};
+function prem(o){var k=String(o).trim().toLowerCase();return PREM[k]!=null?PREM[k]:.30}
+function isUS(o){return /^(us|usa|u\.s\.a?\.?|united states)$/i.test(String(o).trim())}
+function money(x){return (x<0?"-":"")+"$"+Math.abs(x).toLocaleString(undefined,{maximumFractionDigits:0})}
+function load(a){D=a.map(function(r){return{part:r[0],qty:+r[1]||0,cost:+r[2]||0,origin:r[3]||"",alt:r[4]===""||r[4]==null?"":+r[4],lock:false}});drawRows();calc()}
+function drawRows(){
+ var h="";
+ D.forEach(function(d,i){
+  h+='<tr><td><input type="text" data-i="'+i+'" data-k="part" value="'+String(d.part).replace(/"/g,"&quot;")+'" aria-label="Part name"></td>'+
+  '<td><input type="number" data-i="'+i+'" data-k="qty" value="'+d.qty+'" min="0" aria-label="Quantity"></td>'+
+  '<td><input type="number" data-i="'+i+'" data-k="cost" value="'+d.cost+'" min="0" aria-label="Unit cost"></td>'+
+  '<td><input type="text" data-i="'+i+'" data-k="origin" value="'+String(d.origin).replace(/"/g,"&quot;")+'" aria-label="Origin"></td>'+
+  '<td class="n" id="alt'+i+'"></td>'+
+  '<td><input type="checkbox" data-i="'+i+'" data-k="lock"'+(d.lock?" checked":"")+' aria-label="Keep as is"></td>'+
+  '<td><button class="ghost" data-del="'+i+'" aria-label="Remove part" style="padding:3px 8px">x</button></td></tr>';
+ });
+ $("rows").innerHTML=h;
+}
+$("rows").addEventListener("input",function(e){
+ var t=e.target,i=t.dataset.i,k=t.dataset.k;if(i==null)return;
+ if(k==="lock")D[i].lock=t.checked;
+ else if(k==="part"||k==="origin")D[i][k]=t.value;
+ else if(k==="alt")D[i].alt=t.value===""?"":+t.value;
+ else D[i][k]=+t.value||0;
+ calc();
+});
+$("rows").addEventListener("click",function(e){var d=e.target.dataset.del;if(d!=null){D.splice(+d,1);drawRows();calc()}});
+$("addRow").onclick=function(){D.push({part:"New part",qty:1,cost:0,origin:"China",alt:"",lock:false});drawRows();calc()};
+$("loadSample").onclick=function(){load(SAMPLE)};
+$("toggleCsv").onclick=function(){$("csvBox").hidden=!$("csvBox").hidden};
+$("tgt").oninput=calc;
+$("mode").onchange=calc;
+function parseCsv(t){
+ var lines=t.trim().split(/\r?\n/).filter(Boolean),out=[];
+ lines.forEach(function(l,n){
+  var c=l.split(",").map(function(s){return s.trim().replace(/^"|"$/g,"")});
+  if(n===0&&isNaN(parseFloat(c[1])))return;
+  out.push([c[0],c[1],c[2],c[3],c[4]||""]);
+ });
+ return out;
+}
+$("importCsv").onclick=function(){var r=parseCsv($("csv").value);if(r.length)load(r)};
+$("file").onchange=function(e){var f=e.target.files[0];if(!f)return;var rd=new FileReader();rd.onload=function(){var r=parseCsv(rd.result);if(r.length)load(r)};rd.readAsText(f)};
+
+function calc(){
+ var target=(+$("tgt").value||0)/100;var mode=$("mode").value;
+ D.forEach(function(d,i){d.alt=isUS(d.origin)?"":Math.round(d.cost*(1+prem(d.origin))*100)/100;var c=document.getElementById("alt"+i);if(c)c.textContent=isUS(d.origin)?"-":"$"+d.alt.toLocaleString()+" (+"+Math.round(prem(d.origin)*100)+"%)"});
+ var total=0,dom=0;
+ D.forEach(function(d){var l=d.qty*d.cost;total+=l;if(isUS(d.origin))dom+=l});
+ // candidates: foreign, has U.S. alt, not locked
+ var cand=[];
+ D.forEach(function(d,i){
+  if(!isUS(d.origin)&&d.alt!==""&&!d.lock&&d.qty>0){cand.push({i:i,cur:d.qty*d.cost,nw:d.qty*d.alt})}
+ });
+ var T=total,Dm=dom,picks=[],pool=cand.slice();
+ var startPct=total?dom/total:0;
+ while(total&&(mode==="max"||Dm/T<target)&&pool.length){
+  var best=null,bs=Infinity,p0=Dm/T;
+  pool.forEach(function(c){
+   var p1=(Dm+c.nw)/(T+c.nw-c.cur),gain=p1-p0,delta=c.nw-c.cur;
+   var score=gain>0?(mode==="max"?-gain:delta/gain):Infinity;
+   if(gain>0&&score<bs){bs=score;best=c}
+  });
+  if(!best)break;
+  pool.splice(pool.indexOf(best),1);
+  Dm+=best.nw;T+=best.nw-best.cur;
+  picks.push({c:best,pct:Dm/T,cum:T-total});
+ }
+ var reached=total&&Dm/T>=target-1e-9;
+ // replace-everything benchmark
+ var allT=total,allD=dom;cand.forEach(function(c){allT+=c.nw-c.cur;allD+=c.nw});
+ var allAdd=allT-total,allPct=allT?allD/allT:0;
+ var finalPct=T?Dm/T:0,added=T-total;
+ var h="<h2>3. Your swap list</h2>";
+ if(!total){$("out").innerHTML=h+"<p class='muted'>Add parts with a quantity and unit cost to see results.</p>";return}
+ if(mode==="max"){h+="<div class='msg'>Maximum domestic content: swapping "+picks.length+" part"+(picks.length===1?"":"s")+" takes you to "+(finalPct*100).toFixed(1)+"% for "+money(added)+" extra per robot"+(finalPct>=target-1e-9?", which meets your "+(target*100)+"% target.":", which is still below your "+(target*100)+"% target.")+"</div>"}
+ else if(startPct>=target){h+="<div class='msg'>Already at "+(startPct*100).toFixed(1)+"%, which meets the "+(target*100)+"% target. No swaps needed.</div>"}
+ else if(reached){h+="<div class='msg'>Target reachable. Swap "+picks.length+" part"+(picks.length>1?"s":"")+" for "+money(added)+" extra per robot ("+(added/total*100).toFixed(1)+"% more than your current cost), "+money(allAdd-added)+" less than swapping every part.</div>"}
+ else{h+="<div class='msg bad'>Target not reachable with the available U.S. options. Swapping every allowed part only reaches "+(allPct*100).toFixed(1)+"%. Unlock parts or add more U.S. alternatives, including for the big-ticket foreign parts.</div>"}
+ h+="<div class='big'>"+
+  "<div class='stat'><span>Current domestic content</span><b>"+(startPct*100).toFixed(1)+"%</b></div>"+
+  "<div class='stat'><span>After recommended swaps</span><b>"+(finalPct*100).toFixed(1)+"%</b></div>"+
+  "<div class='stat key'><span>Added cost per robot</span><b>"+money(added)+"</b></div>"+
+  "<div class='stat'><span>Cost if you swap everything</span><b>"+money(allAdd)+"</b><small>reaches "+(allPct*100).toFixed(1)+"%</small></div></div>";
+ h+="<div class='bar'><i style='width:"+Math.min(100,finalPct*100)+"%'></i><u style='left:"+Math.min(100,target*100)+"%' title='Target'></u></div><small>Bar: content after swaps. Red line: target.</small>";
+ if(picks.length){
+  h+="<h2 style='margin-top:18px'>Recommended swaps, in order</h2><div class='scroll'><table><thead><tr><th style='width:44px'>#</th><th>Part</th><th class='n'>Extra cost if switched to U.S. (per robot)</th></tr></thead><tbody>";
+  picks.forEach(function(p,n){var d=D[p.c.i];
+   h+="<tr><td><span class='rank'>"+(n+1)+"</span></td><td>"+esc(d.part)+"</td><td class='n'>"+money(p.c.nw-p.c.cur)+"</td></tr>"});
+  h+="<tr class='tot'><td></td><td>Total extra per robot</td><td class='n'>"+money(added)+"</td></tr></tbody></table></div>";
+ }
+ var skipped=cand.filter(function(c){return picks.every(function(p){return p.c!==c})});
+ if(skipped.length){h+="<p class='muted' style='margin-top:14px'>Not worth swapping at your target: "+skipped.map(function(c){return esc(D[c.i].part)}).join(", ")+".</p>"}
+ var noalt=D.filter(function(d){return !isUS(d.origin)&&d.alt===""&&d.qty>0});
+ if(noalt.length){h+="<p class='muted'>Foreign parts with no U.S. option entered: "+noalt.map(function(d){return esc(d.part)+" ("+money(d.qty*d.cost)+")"}).join(", ")+". These are your biggest sourcing gaps.</p>"}
+ $("out").innerHTML=h;
+}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+load(SAMPLE);
+</script>
+</body>
+</html>
